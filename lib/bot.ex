@@ -5,7 +5,7 @@ defmodule JoeMrbot.Bot do
 
   alias Nostrum.Api
 
-  @git_hub_api_issue_url "https://api.github.com/issues"
+  @git_hub_api_issue_url "https://api.github.com/issues?state=open"
   @tel %Nostrum.Struct.Emoji{name: ":telephone_receiver:"}
 
   def git_hub_api_headers() do
@@ -30,7 +30,7 @@ defmodule JoeMrbot.Bot do
       %Nostrum.Struct.Embed{}
       |> put_title("#{issue["repository"]["name"]} - Issue ##{issue["number"]}")
       |> put_description("mr. joe bot generated ... #{@tel}")
-      |> put_url("#{issue["url"]}")
+      |> put_url("#{issue["html_url"]}")
       |> put_timestamp(DateTime.to_iso8601(DateTime.utc_now()))
       |> put_color(3_447_003)
       |> put_field("Title", issue["title"])
@@ -57,14 +57,15 @@ defmodule JoeMrbot.Bot do
       "!ping" ->
         Api.create_message(
           msg.channel_id,
-          "olar I'm mr john bot, an elixir discord application.... #{@tel}"
+          "olar I'm mr joe bot, an elixir discord application.... #{@tel}"
         )
 
-      "!issue" ->
+      "!issues" ->
         case get() do
           {:ok, res} ->
-            {status, _res_headers, body} = res
+            {status, res_headers, body} = res
             Logger.info("[joe] #{inspect(status)}")
+            Logger.info("headers: #{inspect(res_headers)}")
 
             issues = parse_issues(:jiffy.decode(body, [:return_maps]))
 
@@ -81,6 +82,12 @@ defmodule JoeMrbot.Bot do
         Api.create_message(
           msg.channel_id,
           "Hello, mike ?"
+        )
+
+      content when content == "!help" or content == "help" ->
+        Api.create_message(
+          msg.channel_id,
+          "📞 please type one of: !ping, !issues, 📞 or help to show this message..."
         )
 
       _ ->
