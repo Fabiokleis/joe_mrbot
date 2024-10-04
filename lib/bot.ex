@@ -5,14 +5,14 @@ defmodule JoeMrbot.Bot do
 
   alias Nostrum.Api
 
-  @git_hub_api "https://api.github.com/repos/fabiokleis/ftcperl/issues"
+  @git_hub_api_issue_url "https://api.github.com/issues"
   @tel %Nostrum.Struct.Emoji{name: ":telephone_receiver:"}
 
   def git_hub_api_headers() do
     [
       {~c"Authorization", Application.get_env(:joemrbot, :ghtoken)},
       {~c"Accept", "application/vnd.github+json"},
-      {~c"User-Agent", "DiscordBot (https://github.com/fabiokleis/erlbot, 0.1.0)"},
+      {~c"User-Agent", "DiscordBot (https://github.com/fabiokleis/joe-mrbot, 0.1.0)"},
       {~c"X-GitHub-Api-Version", "2022-11-28"}
     ]
   end
@@ -28,7 +28,7 @@ defmodule JoeMrbot.Bot do
     issues
     |> Enum.map(fn issue ->
       %Nostrum.Struct.Embed{}
-      |> put_title("Issue ##{issue["number"]}")
+      |> put_title("#{issue["repository"]["name"]} - Issue ##{issue["number"]}")
       |> put_description("mr. joe bot generated ... #{@tel}")
       |> put_url("#{issue["url"]}")
       |> put_timestamp(DateTime.to_iso8601(DateTime.utc_now()))
@@ -46,7 +46,7 @@ defmodule JoeMrbot.Bot do
   def get() do
     :httpc.request(
       :get,
-      {@git_hub_api, git_hub_api_headers()},
+      {@git_hub_api_issue_url, git_hub_api_headers()},
       [],
       []
     )
